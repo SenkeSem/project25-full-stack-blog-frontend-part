@@ -34,7 +34,8 @@ export const FullPost = () => {
       <Post
         _id={data._id}
         title={data.title}
-        imageUrl="https://koshka.top/uploads/posts/2021-12/1640116763_1-koshka-top-p-na-rabochii-stol-koshki-1.jpg"
+        imageUrl={data.imageUrl}
+        // imageUrl="https://koshka.top/uploads/posts/2021-12/1640116763_1-koshka-top-p-na-rabochii-stol-koshki-1.jpg"
         user={data.user}
         createdAt={data.createdAt}
         viewsCount={data.viewsCount}
