@@ -11,13 +11,13 @@ import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 
 import styles from './Login.module.scss';
-import { fetchAuth, selectIsAuth } from '../../redux/slices/auth';
+import { fetchRegister, selectIsAuth } from '../../redux/slices/auth';
 
 export const Registration = () => {
   const isAuth = useSelector(selectIsAuth);
   const dispatch = useDispatch();
 
-  const { register, handleSubmit, setError, formState: { errors, isValid } } = useForm({
+  const { register, handleSubmit, formState: { errors, isValid } } = useForm({
     defaultValues: {
       fullName: 'Василий Васильевич',
       email: 'vasia4444@test.ru',
@@ -27,10 +27,10 @@ export const Registration = () => {
   });
 
   const onSubmit = async (values) => {
-    const data = await dispatch(fetchAuth(values));
+    const data = await dispatch(fetchRegister(values));
 
     if (!data.payload) {
-      return alert('Не удалось авторизоваться!');
+      return alert('Не удалось зарегистрироваться!');
     }
 
     if ("token" in data.payload) {
@@ -52,7 +52,7 @@ export const Registration = () => {
       <div className={styles.avatar}>
         <Avatar sx={{ width: 100, height: 100 }} />
       </div>
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           error={Boolean(errors.fullName?.message)}
           helperText={errors.fullName?.message}
@@ -74,7 +74,7 @@ export const Registration = () => {
           {...register('password', { required: 'Укажите пароль!' })}
           className={styles.field}
           label="Пароль" fullWidth />
-        <Button size="large" variant="contained"
+        <Button disabled={!isValid} type="submit" size="large" variant="contained"
           fullWidth>
           Зарегистрироваться
         </Button>
