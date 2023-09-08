@@ -8,11 +8,12 @@ import 'easymde/dist/easymde.min.css';
 import styles from './AddPost.module.scss';
 import axios from '../../axios';
 
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsAuth } from '../../redux/slices/auth';
 
 export const AddPost = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const isAuth = useSelector(selectIsAuth);
 
@@ -22,6 +23,8 @@ export const AddPost = () => {
   const [tags, setTags] = React.useState('');
   const [imageUrl, setImageUrl] = React.useState('');
   const inputFileRef = React.useRef(null);
+
+  const isEditing = Boolean(id);
 
   const handleChangeFile = async (event) => {
     try {
@@ -45,14 +48,17 @@ export const AddPost = () => {
       setLoading(true);
       const fields = {
         title,
-        text,
-        tags,
         imageUrl,
+        tags: tags.split(','),
+        text,
       }
-      const { data } = await axios.post('/posts', fields);
-      const id = data._id;
+      const { data } = isEditing
+      ? await axios.patch(`/posts/${id}`, fields)
+      : await axios.post('/posts', fields);
 
-      navigate(`/posts/${id}`);
+      const _id = isEditing ? id : data._id;
+
+      navigate(`/posts/${_id}`);
     } catch (error) {
       console.warn(error);
       alert('Ошибка при создании статьи!');
@@ -61,6 +67,20 @@ export const AddPost = () => {
 
   const onChange = React.useCallback((value) => {
     setText(value);
+  }, []);
+
+  React.useEffect(() => {
+    if (id) {
+      axios.get(`/posts/${id}`).then(({ data }) => {
+        setTitle(data.title);
+        setText(data.text);
+        setImageUrl(data.imageUrl);
+        setTags(data.tags.join(','));
+      }).catch((error) => {
+        console.warn(error);
+        alert('Не удалось получить статью для редактирования!');
+      });
+    } 
   }, []);
 
   const options = React.useMemo(
@@ -120,7 +140,7 @@ export const AddPost = () => {
       <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
       <div className={styles.buttons}>
         <Button onClick={onSabmit} size="large" variant="contained">
-          Опубликовать
+          {isEditing ? "Сохранить" : "Опубликовать"}
         </Button>
         <a href="/">
           <Button size="large">Отмена</Button>

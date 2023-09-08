@@ -40,8 +40,7 @@ export const Home = () => {
             <Post
               _id={obj._id}
               title={obj.title}
-              imageUrl={obj.imageUrl}
-              // imageUrl="https://koshka.top/uploads/posts/2021-12/1640116763_1-koshka-top-p-na-rabochii-stol-koshki-1.jpg"
+              imageUrl={obj.imageUrl ? `http://localhost:4444${obj.imageUrl}` : ''}
               user={obj.user}
               createdAt={obj.createdAt}
               viewsCount={obj.viewsCount}
